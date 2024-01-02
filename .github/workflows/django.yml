@@ -24,7 +24,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip django
-        env
+        env | grep DJANGO_SECRET_REDNET
     - name: Runserver
       run: |
         python manage.py runserver

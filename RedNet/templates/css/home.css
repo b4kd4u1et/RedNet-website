@@ -1,0 +1,90 @@
+body {
+background-color: #1B2B28;
+}
+
+@font-face{
+font-family: "Geostar";
+src: url("../fonts/Geostar-Regular.ttf") format("truetype");
+font-style: normal;
+font-weight: normal;
+}
+
+.text{
+text-align: center;
+font-family: "Geostar";
+color: #F3342C;
+}
+
+#main-text{
+position: fixed;
+width: 952px;
+height: 165px;
+top: 45%;
+left: 25%;
+
+font-style: normal;
+font-weight: 400;
+font-size: 48px;
+line-height: 55px;
+display: flex;
+align-items: center;
+
+}
+
+.button {
+  position: relative;
+  padding: 1.0rem 1.0rem;
+  border: 1px solid #F3342C;
+  text-decoration: none;
+  &:not(:last-child) {
+    margin-right: 40px;
+  }
+}
+
+// border animation
+.btn-border {
+  &::before,
+  &::after {
+    content: "";
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    border: inherit;
+    transition: 0.5s;
+  }
+
+  &::before {
+    top: -15px;
+    left: -15px;
+    border-width: 2px 0 0 2px;
+  }
+  &::after {
+    bottom: -15px;
+    right: -15px;
+    border-width: 0 2px 2px 0;
+  }
+  &:hover::before,
+  &:hover::after {
+    width: calc(100% + 28px);
+    height: calc(100% + 28px);
+  }
+}
+
+#about-button{
+/* About us */
+
+position: absolute;
+width: 154.98px;
+height: 30.66px;
+left: 15%;
+top: 25%;
+
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 23px;
+display: flex;
+align-items: center;
+
+transform: rotate(-34deg);
+}

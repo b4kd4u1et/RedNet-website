@@ -4,7 +4,7 @@ background-color: #1B2B28;
 
 @font-face{
 font-family: "Geostar";
-src: url("../fonts/Geostar-Regular.ttf") format("truetype");
+src: url("Geostar-Regular.ttf") format("truetype");
 font-style: normal;
 font-weight: normal;
 }

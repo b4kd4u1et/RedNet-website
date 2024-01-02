@@ -52,8 +52,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'urls'
-TEMPLATES_DIR = os.path.join(os.path.dirname(BASE_DIR),'templates')
+ROOT_URLCONF = 'RedNet.urls'
+TEMPLATES_DIR = os.path.join(BASE_DIR,'RedNet/templates')
 
 TEMPLATES = [
     {
@@ -122,6 +122,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'RedNet/templates/css',
+    BASE_DIR / 'RedNet/templates/fonts',
+    BASE_DIR / 'RedNet/templates/js',
+    BASE_DIR / 'RedNet/templates/img',
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

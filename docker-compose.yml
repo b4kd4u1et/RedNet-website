@@ -1,0 +1,9 @@
+services:
+  web:
+    image: ghcr.io/b4kd4u1et/rednet-website:latest
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SECRET_REDNET: ${DJANGO_SECRET_REDNET}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+    restart: unless-stopped

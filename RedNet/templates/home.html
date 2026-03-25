@@ -1,20 +1,36 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
-    <head>
-        <link rel="stylesheet" href="static/home.css">
-        <title class="text"> RedNet </title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <title>RedNet — CTF Team</title>
+</head>
 
-    <body>
-        <div class="text" id="main-text">
-            <p>Look around...<br>Do you see a white rabbit? -No<br>-But it is there</p>
+<body>
+    <nav class="navbar">
+        <span class="nav-logo">REDNET</span>
+        <a class="nav-link" href="/about/">About</a>
+    </nav>
+
+    <main class="hero">
+        <div class="hero-content">
+            <p class="team-label">// CTF TEAM · KAZAKHSTAN //</p>
+            <h1 class="hero-title">REDNET</h1>
+            <div class="hero-divider"></div>
+            <p class="hero-motto">
+                Look around...<br>
+                Do you see a white rabbit?<br>
+                <span class="answer">— No</span><br>
+                <span class="answer">— But it is there<span class="cursor">_</span></span>
+            </p>
         </div>
+    </main>
+</body>
 
-        <div id="about-button">
-            <a class="button btn-border text" href="about/" target="_blank">
-                About us
-            </a>
-        </div>
-    </body>
 </html>

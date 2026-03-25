@@ -7,7 +7,7 @@ on:
     branches: [main, master]
 
 jobs:
-  # ── CI: проверки и тесты ──────────────────────────────────────────────────
+  # ── CI: проверки и тесты (GitHub cloud) ──────────────────────────────────
   ci:
     name: CI — checks & tests
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
       - name: Django system check
         env:
           DJANGO_SECRET_REDNET: ${{ secrets.DJANGO_SECRET_REDNET }}
-        run: python manage.py check --deploy 2>&1 | grep -v "WARNINGS" || true
+        run: python manage.py check
 
       - name: Collect static files
         env:
@@ -40,22 +40,24 @@ jobs:
           DJANGO_SECRET_REDNET: ${{ secrets.DJANGO_SECRET_REDNET }}
         run: python manage.py test
 
-  # ── CD: деплой на Railway (тестовая среда) ────────────────────────────────
+  # ── CD: деплой на self-hosted runner (твой ноут / Virtuozzo PaaS) ─────────
   deploy:
-    name: CD — deploy to Railway
+    name: CD — deploy
     needs: ci
-    runs-on: ubuntu-latest
-    # Запускается только при пуше в main/master (не на PR)
+    runs-on: self-hosted
     if: github.event_name == 'push'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: Deploy to Railway
+      - name: Collect static files
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --detach
+          DJANGO_SECRET_REDNET: ${{ secrets.DJANGO_SECRET_REDNET }}
+        run: python manage.py collectstatic --noinput
+
+      - name: Restart Django (systemd)
+        run: systemctl --user restart rednet.service

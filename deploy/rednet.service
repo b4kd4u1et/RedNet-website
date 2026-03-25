@@ -1,0 +1,13 @@
+[Unit]
+Description=RedNet Django site
+After=network.target
+
+[Service]
+WorkingDirectory=%h/RedNet-website
+ExecStart=%h/.local/bin/gunicorn RedNet.wsgi --bind 0.0.0.0:8000 --workers 2
+Restart=on-failure
+Environment=DJANGO_SECRET_REDNET=ЗАМЕНИ_НА_СВОЙ_КЛЮЧ
+Environment=ALLOWED_HOSTS=localhost,127.0.0.1
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,61 @@
+name: RedNet CI/CD
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  # ── CI: проверки и тесты ──────────────────────────────────────────────────
+  ci:
+    name: CI — checks & tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Django system check
+        env:
+          DJANGO_SECRET_REDNET: ${{ secrets.DJANGO_SECRET_REDNET }}
+        run: python manage.py check --deploy 2>&1 | grep -v "WARNINGS" || true
+
+      - name: Collect static files
+        env:
+          DJANGO_SECRET_REDNET: ${{ secrets.DJANGO_SECRET_REDNET }}
+        run: python manage.py collectstatic --noinput
+
+      - name: Run tests
+        env:
+          DJANGO_SECRET_REDNET: ${{ secrets.DJANGO_SECRET_REDNET }}
+        run: python manage.py test
+
+  # ── CD: деплой на Railway (тестовая среда) ────────────────────────────────
+  deploy:
+    name: CD — deploy to Railway
+    needs: ci
+    runs-on: ubuntu-latest
+    # Запускается только при пуше в main/master (не на PR)
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --detach

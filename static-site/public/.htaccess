@@ -1,0 +1,81 @@
+# rednet.kz — настройки для Apache (аналог nginx/rednet.kz.conf + security-headers.conf).
+# Работает, если в конфиге Apache для этого каталога разрешено AllowOverride All
+# (минимум: FileInfo Indexes Options AuthConfig) и включены mod_rewrite, mod_headers, mod_expires.
+# На nginx этот файл не используется и не отдаётся (nginx запрещает доступ к скрытым файлам).
+
+# ---------- Базовое ----------
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+AddDefaultCharset utf-8
+AddCharset utf-8 .html .css .xml .txt .svg
+ErrorDocument 404 /404.html
+ServerSignature Off
+
+<IfModule mod_mime.c>
+  AddType image/svg+xml .svg
+  AddType text/css .css
+</IfModule>
+
+# ---------- Редиректы ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Let's Encrypt: проверка домена не должна уходить в редирект
+  RewriteRule ^\.well-known/acme-challenge/ - [L]
+
+  # Только GET и HEAD — бэкенда нет
+  RewriteCond %{REQUEST_METHOD} !^(GET|HEAD)$
+  RewriteRule ^ - [R=405,L]
+
+  # HTTP → HTTPS и www → без www (одним редиректом)
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://rednet.kz%{REQUEST_URI} [R=301,L,NE]
+
+  # /en и /ru без слэша → со слэшем
+  RewriteRule ^(en|ru)$ /$1/ [R=301,L]
+
+  # Скрытые файлы и каталоги (.git, .htaccess и т.п.) — 404
+  RewriteRule (^|/)\. - [R=404,L]
+</IfModule>
+
+# Запасной запрет на скрытые файлы, если mod_rewrite выключен
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# ---------- Заголовки безопасности ----------
+<IfModule mod_headers.c>
+  # Сайт — только свои CSS и картинки: без JS, без inline-стилей, без внешних ресурсов.
+  Header always set Content-Security-Policy "default-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+
+  # HSTS отправляется только по HTTPS. includeSubDomains — только если HTTPS есть на всех
+  # поддоменах (включая blog.rednet.kz), иначе уберите его.
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" "expr=%{HTTPS} == 'on'"
+
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()"
+  Header always set X-Frame-Options "DENY"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+
+  Header always unset X-Powered-By
+</IfModule>
+
+# ---------- Кэширование ----------
+# HTML — без долгого кэша, чтобы правки текста были видны сразу.
+# Статика — 1 неделя (имена файлов без хэшей).
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(css|svg|png|ico|xml|txt)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
+
+# ---------- Сжатие ----------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain application/xml image/svg+xml
+</IfModule>

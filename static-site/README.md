@@ -13,6 +13,7 @@ static-site/
 │   ├── rednet.kz.conf            — пример server-блоков nginx
 │   └── security-headers.conf     — CSP, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy и др.
 └── public/                       — корень сайта (копируется на сервер целиком)
+    ├── .htaccess                 — то же для Apache: редиректы, заголовки безопасности, кэш, 404
     ├── index.html                — казахская версия (/)
     ├── en/index.html             — английская версия (/en/)
     ├── ru/index.html             — русская версия (/ru/)
@@ -97,6 +98,19 @@ curl -sI https://rednet.kz/ | grep -iE 'content-security|strict-transport|x-cont
   Начать можно с `max-age=300`, убедиться, что всё работает, и поднять до года.
 * В nginx `add_header` внутри `location` отменяет заголовки уровня `server`, поэтому сниппет подключается
   повторно в каждом `location` со своим `add_header`.
+
+## Деплой на Apache
+
+`public/.htaccess` повторяет настройки nginx: HTTP→HTTPS, www→без www, `/en`→`/en/`, только GET/HEAD,
+те же заголовки безопасности, кэш и страница 404. Нужны модули `mod_rewrite`, `mod_headers`, `mod_expires`
+(необязателен), `mod_deflate` и `AllowOverride All` для каталога сайта:
+
+```bash
+sudo a2enmod rewrite headers deflate && sudo systemctl reload apache2
+```
+
+На nginx `.htaccess` не читается и не отдаётся (скрытые файлы запрещены в конфиге), так что его можно
+оставить в `public/` при любом варианте. Учтите, что `rsync public/` копирует скрытые файлы, а `cp public/*` — нет.
 
 ## Размер
 
